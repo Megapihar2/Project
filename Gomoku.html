@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <meta charset="utf-8" />
+      <title>Gomoku</title>
+      <style>
+        canvas { background: #eee;}
+      </style>
+  </head>
+  <body>
+  
+  <canvas id="canvas" ></canvas>
+  
+  <script>
+    
+    (function(elid, width, height, boardSize){
+    var canvas = document.querySelector(elid),
+            ctx = canvas.getContext("2d"),
+            paddingY = 50,
+            paddingX = 5;
+    canvas.width = width; canvas.height = height;
+    //ctx.fillStyle = "gray";
+
+    var boardStatus = [];
+
+    var player = true;
+
+    var newGame = function(){
+        for(var i = 0; i < boardSize; i++) {
+            for(var j = 0; j < boardSize; j++) {
+                boardStatus[i + boardSize *j] = { value : 0, isPlayer : undefined};
+            }
+        }
+    }
+
+    var isDiagonalLineFull = function() {
+        for(var i = 0; i < 1; i++) {
+                if(boardStatus[i * boardSize] && boardStatus[i * boardSize].value && boardStatus[i * boardSize].isPlayer == player
+                && boardStatus[(i + 1) + (i + 1) * boardSize] && boardStatus[(i + 1) + (i + 1) * boardSize].value 
+                && boardStatus[(i + 1) + (i + 1) * boardSize].isPlayer == player
+                && boardStatus[(i + 2) + (i + 2) * boardSize] && boardStatus[(i + 2) + (i + 2) * boardSize].value 
+                && boardStatus[(i + 2) + (i + 2) * boardSize].isPlayer == player){
+                    return true;
+                } 
+
+                if(boardStatus[(i + 2) * boardSize] && boardStatus[(i + 2) * boardSize].value && boardStatus[(i + 2) * boardSize].isPlayer == player
+                && boardStatus[(i + 1) + (i + 1) * boardSize] && boardStatus[(i + 1) + (i + 1) * boardSize].value 
+                && boardStatus[(i + 1) + (i + 1) * boardSize].isPlayer == player
+                && boardStatus[(i + 2) + i * boardSize] && boardStatus[(i + 2) + i * boardSize].value 
+                && boardStatus[(i + 2) + i * boardSize].isPlayer == player){
+                    return true;
+                } 
+        }
+
+        return false;
+    };
+
+    var isVerticalLineFull = function() {
+        for(var i = 0; i < boardSize; i++) {
+                if(boardStatus[i * boardSize] && boardStatus[i * boardSize].value && boardStatus[i * boardSize].isPlayer == player
+                && boardStatus[1 + i * boardSize] && boardStatus[1 + i * boardSize].value && boardStatus[1 + i * boardSize].isPlayer == player
+                && boardStatus[2 + i * boardSize] && boardStatus[2 + i * boardSize].value && boardStatus[2 + i * boardSize].isPlayer == player){
+                    return true;
+                } 
+        }
+
+        return false;
+    };
+
+    var isHorizontalLineFull = function() {
+        for(var i = 0; i < boardSize; i++) {
+                if(boardStatus[i + boardSize] && boardStatus[i + boardSize].value && boardStatus[i + boardSize].isPlayer == player
+                && boardStatus[i] && boardStatus[i].value && boardStatus[i].isPlayer == player
+                && boardStatus[i + 2 * boardSize] && boardStatus[i + 2 * boardSize].value && boardStatus[i +  2 * boardSize].isPlayer == player){
+                    return true;
+                } 
+        }
+
+        return false;
+    };
+
+    var game = setInterval(function(){
+        ctx.clearRect(0,0,width,height);
+
+        ctx.strokeRect(0, 0, 100, 20);
+        ctx.font ="15px sans-serif";
+        ctx.fillText("New Game", 10, 15);
+
+        for(var i = 0; i < boardSize; i++) {
+            for(var j = 0; j < boardSize; j++) {
+                ctx.strokeRect(j * 100 + paddingX, i * 100 + paddingY, 100, 100);
+                if(boardStatus[i + boardSize *j] && boardStatus[i + boardSize *j].value)
+                {
+                    ctx.beginPath();
+                    ctx.arc(j * 100 + paddingX + 50, i * 100 + paddingY + 50, 27, 0, Math.PI * 2);
+                    if(boardStatus[i + boardSize *j].isPlayer)
+                        ctx.stroke();
+                    else
+                        ctx.fill();
+                }
+            }
+        }
+    }, 100);
+
+    document.addEventListener('click', function (e) {
+        if(e.pageX > 0 && e.pageX < 100 && e.pageY < 20 && e.pageY > 0) {
+            newGame();
+        } 
+        
+        for(var i = 0; i < boardSize; i++) {
+            for(var j = 0; j < boardSize; j++) {
+                if(e.pageX >= j * 100 + paddingX && e.pageY >= i * 100 + paddingY 
+                    && e.pageX < (j + 1) * 100 + paddingX &&  e.pageY < (i + 1) * 100 + paddingY) {
+                        boardStatus[i + boardSize *j] = {value : 1, isPlayer : player};
+                        //alert (boardStatus[i + boardSize *j].value + " " + boardStatus[i + boardSize *j].isPlayer + " " + (i + boardSize *j));
+                        if(isHorizontalLineFull() || isVerticalLineFull()  || isDiagonalLineFull())
+                        {alert("Win. New Game"); newGame(); return;}
+
+                        player = !player;
+                    }
+            }
+        }
+    }, false);
+
+})("#canvas", 600, 400,3);
+  </script>
+  
+  </body>
+  </html>
